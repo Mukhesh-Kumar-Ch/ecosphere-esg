@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { CsrService } from "./csr.service.js";
 import { createCsrActivitySchema, updateCsrActivitySchema, joinCsrActivitySchema, approveCsrActivitySchema } from "./csr.schemas.js";
 import type { ActivityStatus, ApprovalStatus } from "@prisma/client";
+import { sendSuccess } from "../../../utils/response.js";
 
 export class CsrController {
   static async getActivities(req: Request, res: Response, next: NextFunction) {
@@ -26,7 +27,7 @@ export class CsrController {
       }
 
       const activities = await CsrService.getActivities(filters);
-      res.json({ activities });
+      return sendSuccess(res, "CSR activities retrieved successfully.", { activities });
     } catch (error) {
       next(error);
     }
@@ -36,7 +37,7 @@ export class CsrController {
     try {
       const id = req.params['id'] as string;
       const activity = await CsrService.getActivityById(id);
-      res.json({ activity });
+      return sendSuccess(res, "CSR activity retrieved successfully.", { activity });
     } catch (error) {
       next(error);
     }
@@ -62,7 +63,7 @@ export class CsrController {
       }
 
       const activity = await CsrService.createActivity(input, userId);
-      res.status(201).json({ activity });
+      return sendSuccess(res, "CSR activity created successfully.", { activity }, 201);
     } catch (error) {
       next(error);
     }
@@ -84,7 +85,7 @@ export class CsrController {
       if (validated.status !== undefined) input.status = validated.status;
 
       const activity = await CsrService.updateActivity(id, input, userId);
-      res.json({ activity });
+      return sendSuccess(res, "CSR activity updated successfully.", { activity });
     } catch (error) {
       next(error);
     }
@@ -96,7 +97,7 @@ export class CsrController {
       const userId = (req as any).user.id as string;
 
       await CsrService.deleteActivity(id, userId);
-      res.json({ success: true, message: "CSR activity deleted successfully." });
+      return sendSuccess(res, "CSR activity deleted successfully.", { success: true });
     } catch (error) {
       next(error);
     }
@@ -108,7 +109,7 @@ export class CsrController {
       const userId = (req as any).user.id as string;
 
       const participation = await CsrService.joinActivity(id, userId);
-      res.status(201).json({ participation });
+      return sendSuccess(res, "Joined CSR activity successfully.", { participation }, 201);
     } catch (error) {
       next(error);
     }
@@ -121,7 +122,7 @@ export class CsrController {
       const { proofFile } = joinCsrActivitySchema.parse(req.body);
 
       const participation = await CsrService.submitProof(id, userId, proofFile || "");
-      res.json({ participation });
+      return sendSuccess(res, "Proof submitted successfully.", { participation });
     } catch (error) {
       next(error);
     }
@@ -134,7 +135,7 @@ export class CsrController {
       const approverId = (req as any).user.id as string;
 
       const participation = await CsrService.approveParticipation(id, approvalStatus, approverId);
-      res.json({ participation });
+      return sendSuccess(res, "Participation approved successfully.", { participation });
     } catch (error) {
       next(error);
     }
@@ -158,7 +159,7 @@ export class CsrController {
       }
 
       const participations = await CsrService.getParticipations(filters);
-      res.json({ participations });
+      return sendSuccess(res, "CSR participations retrieved successfully.", { participations });
     } catch (error) {
       next(error);
     }

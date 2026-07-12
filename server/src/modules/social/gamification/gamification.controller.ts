@@ -2,13 +2,14 @@ import type { Request, Response, NextFunction } from "express";
 import { GamificationService } from "./gamification.service.js";
 import { createRewardSchema, updateRewardSchema } from "./gamification.schemas.js";
 import type { Status } from "@prisma/client";
+import { sendSuccess } from "../../../utils/response.js";
 
 export class GamificationController {
   // Badges
   static async getBadges(req: Request, res: Response, next: NextFunction) {
     try {
       const badges = await GamificationService.getBadges();
-      res.json({ badges });
+      return sendSuccess(res, "Badges retrieved successfully.", { badges });
     } catch (error) {
       next(error);
     }
@@ -18,7 +19,7 @@ export class GamificationController {
     try {
       const userId = (req as any).user.id as string;
       const badges = await GamificationService.getBadgesByUser(userId);
-      res.json({ badges });
+      return sendSuccess(res, "My badges retrieved successfully.", { badges });
     } catch (error) {
       next(error);
     }
@@ -30,7 +31,7 @@ export class GamificationController {
       const userId = (req as any).user.id as string;
       const balance = await GamificationService.getXpBalance(userId);
       const history = await GamificationService.getXpTransactions(userId);
-      res.json({ balance, history });
+      return sendSuccess(res, "XP details retrieved successfully.", { balance, history });
     } catch (error) {
       next(error);
     }
@@ -40,7 +41,7 @@ export class GamificationController {
   static async getRewards(req: Request, res: Response, next: NextFunction) {
     try {
       const rewards = await GamificationService.getRewards();
-      res.json({ rewards });
+      return sendSuccess(res, "Rewards retrieved successfully.", { rewards });
     } catch (error) {
       next(error);
     }
@@ -61,7 +62,7 @@ export class GamificationController {
       }
 
       const reward = await GamificationService.createReward(input, creatorId);
-      res.status(201).json({ reward });
+      return sendSuccess(res, "Reward created successfully.", { reward }, 201);
     } catch (error) {
       next(error);
     }
@@ -81,7 +82,7 @@ export class GamificationController {
       if (validated.status !== undefined) input.status = validated.status;
 
       const reward = await GamificationService.updateReward(id, input, creatorId);
-      res.json({ reward });
+      return sendSuccess(res, "Reward updated successfully.", { reward });
     } catch (error) {
       next(error);
     }
@@ -93,7 +94,7 @@ export class GamificationController {
       const creatorId = (req as any).user.id as string;
 
       await GamificationService.deleteReward(id, creatorId);
-      res.json({ success: true, message: "Reward deleted successfully." });
+      return sendSuccess(res, "Reward deleted successfully.", { success: true });
     } catch (error) {
       next(error);
     }
@@ -105,7 +106,7 @@ export class GamificationController {
       const userId = (req as any).user.id as string;
 
       const redemption = await GamificationService.redeemReward(rewardId, userId);
-      res.status(201).json({ redemption });
+      return sendSuccess(res, "Reward redeemed successfully.", { redemption }, 201);
     } catch (error) {
       next(error);
     }
@@ -120,7 +121,7 @@ export class GamificationController {
       }
 
       const redemptions = await GamificationService.getRedemptions(filters);
-      res.json({ redemptions });
+      return sendSuccess(res, "Redemptions retrieved successfully.", { redemptions });
     } catch (error) {
       next(error);
     }
@@ -130,7 +131,7 @@ export class GamificationController {
   static async getLeaderboard(req: Request, res: Response, next: NextFunction) {
     try {
       const leaderboard = await GamificationService.getLeaderboard();
-      res.json({ leaderboard });
+      return sendSuccess(res, "Leaderboard retrieved successfully.", { leaderboard });
     } catch (error) {
       next(error);
     }

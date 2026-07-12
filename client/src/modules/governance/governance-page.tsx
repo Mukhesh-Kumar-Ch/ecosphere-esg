@@ -30,20 +30,20 @@ export function GovernancePage() {
       {/* Executive Governance Scorecard */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Governance Score */}
-        <Card className="bg-slate-900 text-white shadow-md relative overflow-hidden">
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
-            <CardDescription className="text-slate-400 font-semibold text-xs uppercase tracking-wider">
+            <CardDescription className="text-slate-500 font-semibold text-xs uppercase tracking-wider">
               Governance Rating
             </CardDescription>
-            <CardTitle className="text-3xl font-black mt-1 font-mono">{report.governanceScore}</CardTitle>
+            <CardTitle className="text-3xl font-black mt-1 font-mono text-slate-900">{report.governanceScore}</CardTitle>
           </CardHeader>
           <CardContent className="pb-4">
-            <div className="text-[11px] font-medium text-slate-300">Composite Index</div>
+            <div className="text-[11px] font-medium text-slate-500">Composite Index</div>
           </CardContent>
         </Card>
 
         {/* Policy Compliance */}
-        <Card>
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
             <CardDescription className="text-slate-500 font-semibold text-xs uppercase tracking-wider">
               Policy Compliance
@@ -58,7 +58,7 @@ export function GovernancePage() {
         </Card>
 
         {/* Audit Score */}
-        <Card>
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
             <CardDescription className="text-slate-500 font-semibold text-xs uppercase tracking-wider">
               Avg Audit Performance
@@ -73,7 +73,7 @@ export function GovernancePage() {
         </Card>
 
         {/* Compliance Issues */}
-        <Card>
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
             <CardDescription className="text-slate-500 font-semibold text-xs uppercase tracking-wider">
               Open Violations

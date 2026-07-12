@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { AuditService } from "./audit.service.js";
 import { createAuditSchema, updateAuditSchema } from "./audit.schemas.js";
 import type { AuditStatus } from "@prisma/client";
+import { sendSuccess } from "../../../utils/response.js";
 
 export class AuditController {
   static async getAudits(req: Request, res: Response, next: NextFunction) {
@@ -22,7 +23,7 @@ export class AuditController {
       }
 
       const audits = await AuditService.getAudits(filters);
-      res.json({ audits });
+      return sendSuccess(res, "Audits retrieved successfully.", { audits });
     } catch (error) {
       next(error);
     }
@@ -32,7 +33,7 @@ export class AuditController {
     try {
       const id = req.params['id'] as string;
       const audit = await AuditService.getAuditById(id);
-      res.json({ audit });
+      return sendSuccess(res, "Audit retrieved successfully.", { audit });
     } catch (error) {
       next(error);
     }
@@ -58,7 +59,7 @@ export class AuditController {
       }
 
       const audit = await AuditService.createAudit(auditInput, userId);
-      res.status(201).json({ audit });
+      return sendSuccess(res, "Audit created successfully.", { audit }, 201);
     } catch (error) {
       next(error);
     }
@@ -82,7 +83,7 @@ export class AuditController {
       if (validated.score !== undefined) auditInput.score = validated.score;
 
       const audit = await AuditService.updateAudit(id, auditInput, userId);
-      res.json({ audit });
+      return sendSuccess(res, "Audit updated successfully.", { audit });
     } catch (error) {
       next(error);
     }
@@ -94,7 +95,7 @@ export class AuditController {
       const userId = (req as any).user.id as string;
 
       await AuditService.deleteAudit(id, userId);
-      res.json({ success: true, message: "Audit deleted successfully." });
+      return sendSuccess(res, "Audit deleted successfully.", { success: true });
     } catch (error) {
       next(error);
     }

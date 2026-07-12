@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { ComplianceService } from "./compliance.service.js";
 import { createComplianceSchema, updateComplianceSchema } from "./compliance.schemas.js";
 import type { ComplianceStatus, SeverityLevel } from "@prisma/client";
+import { sendSuccess } from "../../../utils/response.js";
 
 export class ComplianceController {
   static async getIssues(req: Request, res: Response, next: NextFunction) {
@@ -26,7 +27,7 @@ export class ComplianceController {
       }
 
       const issues = await ComplianceService.getIssues(filters);
-      res.json({ issues });
+      return sendSuccess(res, "Compliance issues retrieved successfully.", { issues });
     } catch (error) {
       next(error);
     }
@@ -36,7 +37,7 @@ export class ComplianceController {
     try {
       const id = req.params['id'] as string;
       const issue = await ComplianceService.getIssueById(id);
-      res.json({ issue });
+      return sendSuccess(res, "Compliance issue retrieved successfully.", { issue });
     } catch (error) {
       next(error);
     }
@@ -61,7 +62,7 @@ export class ComplianceController {
       }
 
       const issue = await ComplianceService.createIssue(issueInput, userId);
-      res.status(201).json({ issue });
+      return sendSuccess(res, "Compliance issue created successfully.", { issue }, 201);
     } catch (error) {
       next(error);
     }
@@ -83,7 +84,7 @@ export class ComplianceController {
       if (validated.status !== undefined) issueInput.status = validated.status;
 
       const issue = await ComplianceService.updateIssue(id, issueInput, userId);
-      res.json({ issue });
+      return sendSuccess(res, "Compliance issue updated successfully.", { issue });
     } catch (error) {
       next(error);
     }
@@ -95,7 +96,7 @@ export class ComplianceController {
       const userId = (req as any).user.id as string;
 
       await ComplianceService.deleteIssue(id, userId);
-      res.json({ success: true, message: "Compliance issue deleted successfully." });
+      return sendSuccess(res, "Compliance issue deleted successfully.", { success: true });
     } catch (error) {
       next(error);
     }

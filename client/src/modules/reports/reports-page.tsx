@@ -339,22 +339,22 @@ export function ReportsPage() {
 
             {/* Scorecard */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-slate-900 text-white shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
+              <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
+                <div className="absolute top-0 right-0 p-4 opacity-5 text-slate-950">
                   <Layers className="h-20 w-20" />
                 </div>
                 <CardHeader className="pb-1 pt-5">
-                  <CardDescription className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Overall ESG Rating</CardDescription>
-                  <CardTitle className="text-3xl font-black mt-1 font-mono">{esgSummary.scores.overallScore}</CardTitle>
+                  <CardDescription className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider font-sans">Overall ESG Rating</CardDescription>
+                  <CardTitle className="text-3xl font-black mt-1 font-mono text-slate-900">{esgSummary.scores.overallScore}</CardTitle>
                 </CardHeader>
                 <CardContent className="pb-5">
-                  <div className="text-[11px] text-slate-300">
+                  <div className="text-[11px] text-slate-500 font-sans">
                     E ({esgSummary.scores.weights.environmental}%) S ({esgSummary.scores.weights.social}%) G ({esgSummary.scores.weights.governance}%)
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
                 <CardHeader className="pb-1 pt-5">
                   <CardDescription className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Environmental Rating</CardDescription>
                   <CardTitle className="text-3xl font-black mt-1 font-mono text-green-700">{esgSummary.scores.environmentalScore}</CardTitle>
@@ -364,7 +364,7 @@ export function ReportsPage() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
                 <CardHeader className="pb-1 pt-5">
                   <CardDescription className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Social Rating</CardDescription>
                   <CardTitle className="text-3xl font-black mt-1 font-mono text-emerald-700">{esgSummary.scores.socialScore}</CardTitle>
@@ -374,7 +374,7 @@ export function ReportsPage() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
                 <CardHeader className="pb-1 pt-5">
                   <CardDescription className="text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Governance Rating</CardDescription>
                   <CardTitle className="text-3xl font-black mt-1 font-mono text-indigo-700">{esgSummary.scores.governanceScore}</CardTitle>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LogOut, Bell, Search, Leaf, LayoutDashboard, Settings2, Users, ShieldCheck, FileText, Check, CheckCheck, X } from "lucide-react";
+import { LogOut, Bell, Leaf, LayoutDashboard, Settings2, Users, ShieldCheck, FileText, Check, CheckCheck, X } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
@@ -276,10 +276,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h1 className="text-xl font-semibold">{pageTitle}</h1>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
-                <Search className="h-4 w-4" />
-                Search
-              </div>
               <NotificationsBell />
               <Button variant="outline" size="sm" type="button" onClick={() => void logout()}>
                 <LogOut className="mr-2 h-4 w-4" />

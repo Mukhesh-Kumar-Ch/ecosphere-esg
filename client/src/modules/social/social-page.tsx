@@ -31,20 +31,20 @@ export function SocialPage() {
       {/* Executive Social Scorecard */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Social Score */}
-        <Card className="bg-slate-900 text-white shadow-md relative overflow-hidden">
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
-            <CardDescription className="text-slate-400 font-semibold text-xs uppercase tracking-wider">
+            <CardDescription className="text-slate-500 font-semibold text-xs uppercase tracking-wider">
               Social Rating
             </CardDescription>
-            <CardTitle className="text-3xl font-black mt-1 font-mono">{report.socialScore}</CardTitle>
+            <CardTitle className="text-3xl font-black mt-1 font-mono text-slate-900">{report.socialScore}</CardTitle>
           </CardHeader>
           <CardContent className="pb-4">
-            <div className="text-[11px] font-medium text-slate-300">Composite Score</div>
+            <div className="text-[11px] font-medium text-slate-500">Composite Score</div>
           </CardContent>
         </Card>
 
         {/* CSR Participation Rate */}
-        <Card>
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
             <CardDescription className="text-slate-500 font-semibold text-xs uppercase tracking-wider">
               CSR Approval Rate
@@ -61,7 +61,7 @@ export function SocialPage() {
         </Card>
 
         {/* Challenge Completion Rate */}
-        <Card>
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
             <CardDescription className="text-slate-500 font-semibold text-xs uppercase tracking-wider">
               Challenge Completion
@@ -78,7 +78,7 @@ export function SocialPage() {
         </Card>
 
         {/* Training Completion Rate */}
-        <Card>
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
             <CardDescription className="text-slate-500 font-semibold text-xs uppercase tracking-wider">
               Training Completion

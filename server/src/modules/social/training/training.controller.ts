@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { TrainingService } from "./training.service.js";
 import { createTrainingSchema, updateProgressSchema } from "./training.schemas.js";
 import type { TrainingStatus } from "@prisma/client";
+import { sendSuccess } from "../../../utils/response.js";
 
 export class TrainingController {
   static async getTrainings(req: Request, res: Response, next: NextFunction) {
@@ -18,7 +19,7 @@ export class TrainingController {
       }
 
       const trainings = await TrainingService.getTrainings(filters);
-      res.json({ trainings });
+      return sendSuccess(res, "Trainings retrieved successfully.", { trainings });
     } catch (error) {
       next(error);
     }
@@ -37,7 +38,7 @@ export class TrainingController {
       }
 
       const training = await TrainingService.createTraining(input);
-      res.status(201).json({ training });
+      return sendSuccess(res, "Training created successfully.", { training }, 201);
     } catch (error) {
       next(error);
     }
@@ -49,7 +50,7 @@ export class TrainingController {
       const { progress } = updateProgressSchema.parse(req.body);
 
       const training = await TrainingService.updateTrainingProgress(id, progress);
-      res.json({ training });
+      return sendSuccess(res, "Training progress updated successfully.", { training });
     } catch (error) {
       next(error);
     }
@@ -59,7 +60,7 @@ export class TrainingController {
     try {
       const id = req.params['id'] as string;
       await TrainingService.deleteTraining(id);
-      res.json({ success: true, message: "Training course deleted successfully." });
+      return sendSuccess(res, "Training course deleted successfully.", { success: true });
     } catch (error) {
       next(error);
     }

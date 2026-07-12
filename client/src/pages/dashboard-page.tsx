@@ -121,25 +121,25 @@ export function DashboardPage() {
       {/* Executive ESG Scorecard Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Overall ESG Score */}
-        <Card className="bg-slate-900 text-white border-none shadow-md overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
+          <div className="absolute top-0 right-0 p-4 opacity-5 text-slate-950">
             <Layers className="h-24 w-24" />
           </div>
           <CardHeader className="pb-2 pt-5">
             <div className="flex justify-between items-center">
-              <CardDescription className="text-slate-400 font-semibold text-xs uppercase tracking-wider">
+              <CardDescription className="text-slate-500 font-semibold text-xs uppercase tracking-wider">
                 Overall ESG Score
               </CardDescription>
-              <Badge className="bg-green-500/20 text-green-300 hover:bg-green-500/20 text-[10px] font-bold">
+              <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-[10px] font-bold">
                 Live Rating
               </Badge>
             </div>
-            <CardTitle className="text-4xl font-black mt-2 font-mono">{overallScore}</CardTitle>
+            <CardTitle className="text-4xl font-black mt-2 text-slate-900 font-mono">{overallScore}</CardTitle>
           </CardHeader>
           <CardContent className="pb-5">
-            <div className="text-[11px] font-medium text-slate-300">Composite Sustainability Rating</div>
-            <div className="text-[10px] text-slate-400 mt-2 italic flex items-center gap-1 border-t border-slate-800 pt-2">
-              <Info className="h-3 w-3 text-green-400 shrink-0" />
+            <div className="text-[11px] font-medium text-slate-500">Composite Sustainability Rating</div>
+            <div className="text-[10px] text-slate-400 mt-2 italic flex items-center gap-1 border-t border-slate-100 pt-2">
+              <Info className="h-3 w-3 text-green-600 shrink-0" />
               Environmental, Social, & Governance Combined
             </div>
           </CardContent>

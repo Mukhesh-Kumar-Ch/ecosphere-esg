@@ -1,12 +1,13 @@
 import type { Request, Response, NextFunction } from "express";
 import { DiversityService } from "./diversity.service.js";
 import { setMetricSchema } from "./diversity.schemas.js";
+import { sendSuccess } from "../../../utils/response.js";
 
 export class DiversityController {
   static async getMetrics(req: Request, res: Response, next: NextFunction) {
     try {
       const metrics = await DiversityService.getMetrics();
-      res.json({ metrics });
+      return sendSuccess(res, "Diversity metrics retrieved successfully.", { metrics });
     } catch (error) {
       next(error);
     }
@@ -16,7 +17,7 @@ export class DiversityController {
     try {
       const { category, label, value } = setMetricSchema.parse(req.body);
       const metric = await DiversityService.setMetric(category, label, Number(value));
-      res.status(200).json({ metric });
+      return sendSuccess(res, "Diversity metric set successfully.", { metric });
     } catch (error) {
       next(error);
     }
@@ -26,7 +27,7 @@ export class DiversityController {
     try {
       const id = req.params['id'] as string;
       await DiversityService.deleteMetric(id);
-      res.json({ success: true, message: "Diversity metric deleted successfully." });
+      return sendSuccess(res, "Diversity metric deleted successfully.", { success: true });
     } catch (error) {
       next(error);
     }

@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { ChallengesService } from "./challenges.service.js";
 import { createChallengeSchema, updateChallengeSchema, updateProgressSchema, approveChallengeSchema } from "./challenges.schemas.js";
 import type { ChallengeStatus, ApprovalStatus } from "@prisma/client";
+import { sendSuccess } from "../../../utils/response.js";
 
 export class ChallengesController {
   static async getChallenges(req: Request, res: Response, next: NextFunction) {
@@ -22,7 +23,7 @@ export class ChallengesController {
       }
 
       const challenges = await ChallengesService.getChallenges(filters);
-      res.json({ challenges });
+      return sendSuccess(res, "Challenges retrieved successfully.", { challenges });
     } catch (error) {
       next(error);
     }
@@ -32,7 +33,7 @@ export class ChallengesController {
     try {
       const id = req.params['id'] as string;
       const challenge = await ChallengesService.getChallengeById(id);
-      res.json({ challenge });
+      return sendSuccess(res, "Challenge retrieved successfully.", { challenge });
     } catch (error) {
       next(error);
     }
@@ -61,7 +62,7 @@ export class ChallengesController {
       }
 
       const challenge = await ChallengesService.createChallenge(input, userId);
-      res.status(201).json({ challenge });
+      return sendSuccess(res, "Challenge created successfully.", { challenge }, 201);
     } catch (error) {
       next(error);
     }
@@ -84,7 +85,7 @@ export class ChallengesController {
       if (validated.status !== undefined) input.status = validated.status;
 
       const challenge = await ChallengesService.updateChallenge(id, input, userId);
-      res.json({ challenge });
+      return sendSuccess(res, "Challenge updated successfully.", { challenge });
     } catch (error) {
       next(error);
     }
@@ -96,7 +97,7 @@ export class ChallengesController {
       const userId = (req as any).user.id as string;
 
       await ChallengesService.deleteChallenge(id, userId);
-      res.json({ success: true, message: "Challenge deleted successfully." });
+      return sendSuccess(res, "Challenge deleted successfully.", { success: true });
     } catch (error) {
       next(error);
     }
@@ -108,7 +109,7 @@ export class ChallengesController {
       const userId = (req as any).user.id as string;
 
       const participation = await ChallengesService.joinChallenge(id, userId);
-      res.status(201).json({ participation });
+      return sendSuccess(res, "Joined challenge successfully.", { participation }, 201);
     } catch (error) {
       next(error);
     }
@@ -121,7 +122,7 @@ export class ChallengesController {
       const { progress, proofFile } = updateProgressSchema.parse(req.body);
 
       const participation = await ChallengesService.updateProgress(id, userId, progress, proofFile || undefined);
-      res.json({ participation });
+      return sendSuccess(res, "Progress updated successfully.", { participation });
     } catch (error) {
       next(error);
     }
@@ -134,7 +135,7 @@ export class ChallengesController {
       const approverId = (req as any).user.id as string;
 
       const participation = await ChallengesService.approveParticipation(id, approvalStatus, approverId);
-      res.json({ participation });
+      return sendSuccess(res, "Participation approved successfully.", { participation });
     } catch (error) {
       next(error);
     }
@@ -158,7 +159,7 @@ export class ChallengesController {
       }
 
       const participations = await ChallengesService.getParticipations(filters);
-      res.json({ participations });
+      return sendSuccess(res, "Challenge participations retrieved successfully.", { participations });
     } catch (error) {
       next(error);
     }

@@ -275,39 +275,39 @@ export function CarbonTransactionsTab() {
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md border-none">
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
-            <CardDescription className="text-blue-100 font-medium">All-Time Emissions</CardDescription>
-            <CardTitle className="text-3xl font-bold">
-              {summary.totalEmissions.toLocaleString("en-US")} <span className="text-lg font-normal">kg CO₂</span>
+            <CardDescription className="text-slate-500 font-medium">All-Time Emissions</CardDescription>
+            <CardTitle className="text-3xl font-bold text-slate-900">
+              {summary.totalEmissions.toLocaleString("en-US")} <span className="text-lg font-normal text-slate-500">kg CO₂</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-xs text-blue-100 flex items-center gap-1 mt-2">
-            <Calendar className="h-3 w-3" /> Ledger inception total emissions
+          <CardContent className="text-xs text-slate-500 flex items-center gap-1 mt-2 border-t border-slate-100 pt-2">
+            <Calendar className="h-3 w-3 text-slate-450" /> Ledger inception total emissions
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md border-none">
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
-            <CardDescription className="text-emerald-100 font-medium">Today's Emissions</CardDescription>
-            <CardTitle className="text-3xl font-bold">
-              {summary.todayEmissions.toLocaleString("en-US")} <span className="text-lg font-normal">kg CO₂</span>
+            <CardDescription className="text-slate-500 font-medium">Today's Emissions</CardDescription>
+            <CardTitle className="text-3xl font-bold text-emerald-700">
+              {summary.todayEmissions.toLocaleString("en-US")} <span className="text-lg font-normal text-slate-500">kg CO₂</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-xs text-emerald-100 flex items-center gap-1 mt-2">
-            <Calendar className="h-3 w-3" /> Real-time operations today
+          <CardContent className="text-xs text-slate-500 flex items-center gap-1 mt-2 border-t border-slate-100 pt-2">
+            <Calendar className="h-3 w-3 text-slate-450" /> Real-time operations today
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-md border-none">
+        <Card className="relative overflow-hidden hover:shadow-md transition-shadow bg-white border border-slate-200">
           <CardHeader className="pb-2">
-            <CardDescription className="text-sky-100 font-medium">This Month's Emissions</CardDescription>
-            <CardTitle className="text-3xl font-bold">
-              {summary.monthlyEmissions.toLocaleString("en-US")} <span className="text-lg font-normal">kg CO₂</span>
+            <CardDescription className="text-slate-500 font-medium">This Month's Emissions</CardDescription>
+            <CardTitle className="text-3xl font-bold text-sky-750">
+              {summary.monthlyEmissions.toLocaleString("en-US")} <span className="text-lg font-normal text-slate-500">kg CO₂</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-xs text-sky-100 flex items-center gap-1 mt-2">
-            <Calendar className="h-3 w-3" /> Month-to-date carbon total
+          <CardContent className="text-xs text-slate-500 flex items-center gap-1 mt-2 border-t border-slate-100 pt-2">
+            <Calendar className="h-3 w-3 text-slate-450" /> Month-to-date carbon total
           </CardContent>
         </Card>
       </div>

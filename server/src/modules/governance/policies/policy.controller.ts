@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { PolicyService } from "./policy.service.js";
 import { createPolicySchema, updatePolicySchema } from "./policy.schemas.js";
 import type { PolicyStatus } from "@prisma/client";
+import { sendSuccess } from "../../../utils/response.js";
 
 export class PolicyController {
   static async getPolicies(req: Request, res: Response, next: NextFunction) {
@@ -18,7 +19,7 @@ export class PolicyController {
       }
 
       const policies = await PolicyService.getPolicies(filters);
-      res.json({ policies });
+      return sendSuccess(res, "Policies retrieved successfully.", { policies });
     } catch (error) {
       next(error);
     }
@@ -28,7 +29,7 @@ export class PolicyController {
     try {
       const id = req.params['id'] as string;
       const policy = await PolicyService.getPolicyById(id);
-      res.json({ policy });
+      return sendSuccess(res, "Policy retrieved successfully.", { policy });
     } catch (error) {
       next(error);
     }
@@ -50,7 +51,7 @@ export class PolicyController {
       }
 
       const policy = await PolicyService.createPolicy(policyInput, userId);
-      res.status(201).json({ policy });
+      return sendSuccess(res, "Policy created successfully.", { policy }, 201);
     } catch (error) {
       next(error);
     }
@@ -70,7 +71,7 @@ export class PolicyController {
       if (validated.status !== undefined) policyInput.status = validated.status;
 
       const policy = await PolicyService.updatePolicy(id, policyInput, userId);
-      res.json({ policy });
+      return sendSuccess(res, "Policy updated successfully.", { policy });
     } catch (error) {
       next(error);
     }
@@ -82,7 +83,7 @@ export class PolicyController {
       const userId = (req as any).user.id as string;
 
       await PolicyService.deletePolicy(id, userId);
-      res.json({ success: true, message: "Policy deleted successfully." });
+      return sendSuccess(res, "Policy deleted successfully.", { success: true });
     } catch (error) {
       next(error);
     }
@@ -94,7 +95,7 @@ export class PolicyController {
       const userId = (req as any).user.id as string;
 
       const ack = await PolicyService.acknowledgePolicy(id, userId);
-      res.status(201).json({ acknowledgement: ack });
+      return sendSuccess(res, "Policy acknowledged successfully.", { acknowledgement: ack }, 201);
     } catch (error) {
       next(error);
     }
@@ -104,7 +105,7 @@ export class PolicyController {
     try {
       const userId = (req as any).user.id as string;
       const acknowledgements = await PolicyService.getAcknowledgementsByUser(userId);
-      res.json({ acknowledgements });
+      return sendSuccess(res, "Acknowledgements retrieved successfully.", { acknowledgements });
     } catch (error) {
       next(error);
     }
