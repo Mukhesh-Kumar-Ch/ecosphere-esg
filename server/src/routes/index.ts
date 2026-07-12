@@ -10,6 +10,7 @@ import { notificationsRouter } from "../modules/shared/notifications/notificatio
 import { activityLogsRouter } from "../modules/shared/activity-logs/activity-logs.routes.js";
 import { authenticate } from "../middlewares/auth.middleware.js";
 import { prisma } from "../config/prisma.js";
+import { sendSuccess } from "../utils/response.js";
 
 export const apiRouter = Router();
 
@@ -31,7 +32,7 @@ apiRouter.get("/users", authenticate, async (req, res, next) => {
       include: { role: true, department: true },
       orderBy: { name: "asc" },
     });
-    res.json({ users });
+    return sendSuccess(res, "Users retrieved successfully.", { users });
   } catch (err) {
     next(err);
   }

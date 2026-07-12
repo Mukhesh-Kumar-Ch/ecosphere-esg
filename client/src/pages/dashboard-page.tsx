@@ -1,4 +1,4 @@
-import { Activity, Leaf, Target, Users, Calendar, Info, Layers, CheckCircle2, TrendingUp, BarChart3, ShieldCheck, AlertOctagon, Clipboard, Heart, Award, Trophy, Star, BookOpen } from "lucide-react";
+import { Activity, Leaf, Target, Users, Info, Layers, CheckCircle2, TrendingUp, BarChart3, ShieldCheck, AlertOctagon, Clipboard, Heart, Award, Trophy, Star, BookOpen } from "lucide-react";
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

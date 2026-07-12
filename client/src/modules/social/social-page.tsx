@@ -8,7 +8,6 @@ import { ParticipationTab } from "./participation-tab";
 import { ChallengesTab } from "./challenges-tab";
 import { RewardsTab } from "./rewards-tab";
 import { LeaderboardTab } from "./leaderboard-tab";
-import { Heart, Trophy, BookOpen, Layers } from "lucide-react";
 import { ErrorState, LoadingState } from "../administration/shared-state";
 
 export function SocialPage() {

@@ -3,12 +3,12 @@ import { prisma } from "../../config/prisma.js";
 export async function getEnvironmentReport() {
   const now = new Date();
   
-  // Start and end of today in local/UTC
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  // Start and end of today in UTC (BR-007)
+  const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const endOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
 
-  // Start and end of current month
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  // Start and end of current month in UTC
+  const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   
   // Fetch all transactions to perform dynamic calculations
   const allTransactions = await prisma.carbonTransaction.findMany({
@@ -30,7 +30,7 @@ export async function getEnvironmentReport() {
     if (txDate >= startOfToday && txDate < endOfToday) {
       todayEmissions += emissionVal;
     }
-    if (txDate >= startOfMonth) {
+    if (txDate >= startOfMonth && txDate < endOfToday) {
       monthlyEmissions += emissionVal;
     }
   });
@@ -38,10 +38,10 @@ export async function getEnvironmentReport() {
   // Calculate monthly emissions trend (last 6 months)
   const last6Months: { name: string; emissions: number }[] = [];
   for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const monthName = d.toLocaleString("default", { month: "short" });
-    const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
-    const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    const monthName = d.toLocaleString("default", { month: "short", timeZone: "UTC" });
+    const monthStart = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+    const monthEnd = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
 
     const emissionsInMonth = allTransactions
       .filter((tx) => {

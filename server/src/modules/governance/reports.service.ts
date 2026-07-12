@@ -21,7 +21,7 @@ export class GovernanceReportsService {
     const employeesCount = await prisma.user.count({
       where: {
         role: {
-          name: { in: ["Employee", "Department Head", "Asset Manager"] },
+          name: { not: "Admin" },
         },
         deletedAt: null,
       },

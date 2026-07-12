@@ -7,7 +7,6 @@ import { PoliciesTab } from "./policies-tab";
 import { AcknowledgementsTab } from "./acknowledgements-tab";
 import { AuditsTab } from "./audits-tab";
 import { ComplianceTab } from "./compliance-tab";
-import { ShieldAlert, BookOpen, Clipboard, BarChart } from "lucide-react";
 import { ErrorState, LoadingState } from "../administration/shared-state";
 
 export function GovernancePage() {

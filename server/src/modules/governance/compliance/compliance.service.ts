@@ -65,11 +65,11 @@ export class ComplianceService {
     }
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const due = new Date(input.dueDate);
-    due.setHours(0, 0, 0, 0);
+    const utcToday = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const parsedDue = new Date(input.dueDate);
+    const due = new Date(Date.UTC(parsedDue.getUTCFullYear(), parsedDue.getUTCMonth(), parsedDue.getUTCDate()));
 
-    const initialStatus = (due.getTime() < today.getTime() && input.status !== "RESOLVED") 
+    const initialStatus = (due.getTime() < utcToday.getTime() && input.status !== "RESOLVED") 
       ? "OVERDUE" 
       : (input.status ?? "OPEN");
 
@@ -128,8 +128,8 @@ export class ComplianceService {
     if (input.ownerId !== undefined) data.ownerId = input.ownerId;
     
     if (input.dueDate !== undefined) {
-      const due = new Date(input.dueDate);
-      due.setHours(0, 0, 0, 0);
+      const parsedDue = new Date(input.dueDate);
+      const due = new Date(Date.UTC(parsedDue.getUTCFullYear(), parsedDue.getUTCMonth(), parsedDue.getUTCDate()));
       data.dueDate = due;
     }
 

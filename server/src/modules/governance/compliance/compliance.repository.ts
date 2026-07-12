@@ -105,7 +105,7 @@ export class ComplianceRepository {
 
   static async getOverdueIssues() {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const utcToday = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 
     return prisma.complianceIssue.findMany({
       where: {
@@ -113,7 +113,7 @@ export class ComplianceRepository {
           in: ["OPEN", "IN_PROGRESS"],
         },
         dueDate: {
-          lt: today,
+          lt: utcToday,
         },
       },
     });

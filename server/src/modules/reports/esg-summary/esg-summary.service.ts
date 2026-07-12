@@ -32,7 +32,7 @@ export class EsgSummaryReportService {
             (g) => g.status === "COMPLETED" || g.currentEmissions <= g.targetValue
           ).length /
             envReport.goalProgress.length) *
-            105
+            100
         )
       : 100;
 
@@ -82,6 +82,7 @@ export class EsgSummaryReportService {
         users: {
           where: { deletedAt: null },
           include: {
+            role: true,
             xpTransactions: true,
             csrParticipations: true,
             challengeParticipations: true,
@@ -97,7 +98,7 @@ export class EsgSummaryReportService {
 
     const departmentRankings = departments
       .map((dept: any) => {
-        const deptUsers = dept.users;
+        const deptUsers = dept.users.filter((u: any) => u.role.name !== "Admin");
         const totalDeptEmployees = deptUsers.length;
 
         // A. Env Score for Dept
