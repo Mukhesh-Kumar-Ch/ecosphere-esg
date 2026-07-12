@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum DepartmentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Role {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String  @unique @db.VarChar(50)
+  description String? @db.Text
+  users       User[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("roles")
+}
+
+model Department {
+  id                String            @id @default(uuid()) @db.Uuid
+  name              String            @db.VarChar(100)
+  code              String            @unique @db.VarChar(20)
+  parentDepartmentId String?           @map("parent_department_id") @db.Uuid
+  headUserId        String?           @map("head_user_id") @db.Uuid
+  status            DepartmentStatus  @default(ACTIVE)
+  parentDepartment  Department?       @relation("DepartmentParent", fields: [parentDepartmentId], references: [id], onDelete: SetNull)
+  childDepartments  Department[]      @relation("DepartmentParent")
+  headUser          User?             @relation("DepartmentHead", fields: [headUserId], references: [id], onDelete: SetNull)
+  users             User[]
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  deletedAt         DateTime?         @map("deleted_at")
+
+  @@index([status])
+  @@index([parentDepartmentId])
+  @@index([headUserId])
+  @@map("departments")
+}
+
+model User {
+  id            String       @id @default(uuid()) @db.Uuid
+  departmentId  String       @map("department_id") @db.Uuid
+  roleId        String       @map("role_id") @db.Uuid
+  name          String       @db.VarChar(120)
+  email         String       @unique @db.VarChar(255)
+  passwordHash  String       @map("password_hash") @db.Text
+  status        UserStatus   @default(ACTIVE)
+  department    Department   @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  role          Role         @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  headedDepartment Department[] @relation("DepartmentHead")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  deletedAt     DateTime?    @map("deleted_at")
+
+  @@index([departmentId])
+  @@index([roleId])
+  @@index([status])
+  @@map("users")
+}
