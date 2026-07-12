@@ -56,6 +56,11 @@ model Department {
   childDepartments   Department[]      @relation("DepartmentParent")
   headUser           User?             @relation("DepartmentHead", fields: [headUserId], references: [id], onDelete: SetNull)
   users              User[]
+  environmentalGoals EnvironmentalGoal[]
+  carbonTransactions CarbonTransaction[]
+  audits             Audit[]
+  complianceIssues   ComplianceIssue[]
+  csrActivities      CsrActivity[]
   createdAt          DateTime          @default(now()) @map("created_at")
   updatedAt          DateTime          @updatedAt @map("updated_at")
   deletedAt          DateTime?         @map("deleted_at")
@@ -78,6 +83,22 @@ model User {
   role              Role         @relation(fields: [roleId], references: [id], onDelete: Restrict)
   headedDepartment  Department[] @relation("DepartmentHead")
   updatedSettings    Setting[]    @relation("SettingsUpdatedBy")
+  carbonTransactions CarbonTransaction[] @relation("TransactionCreator")
+  notifications           Notification[]
+  activityLogs            ActivityLog[]
+  createdPolicies         Policy[]                  @relation("PolicyCreator")
+  policyAcknowledgements  PolicyAcknowledgement[]
+  auditedAudits           Audit[]                   @relation("Auditor")
+  ownedComplianceIssues   ComplianceIssue[]         @relation("ComplianceOwner")
+  createdCsrActivities    CsrActivity[]             @relation("CsrActivityCreator")
+  csrParticipations       EmployeeParticipation[]   @relation("EmployeeParticipant")
+  approvedCsrParticipations EmployeeParticipation[] @relation("ParticipationApprover")
+  challengeParticipations ChallengeParticipation[]  @relation("ChallengeParticipant")
+  approvedChallengeParticipations ChallengeParticipation[] @relation("ChallengeApprover")
+  xpTransactions          XpTransaction[]
+  badges                  UserBadge[]
+  rewardRedemptions       RewardRedemption[]
+  trainings               EmployeeTraining[]
   createdAt         DateTime     @default(now()) @map("created_at")
   updatedAt         DateTime     @updatedAt @map("updated_at")
   deletedAt         DateTime?    @map("deleted_at")
@@ -93,8 +114,10 @@ model Category {
   name      String         @db.VarChar(100)
   type      CategoryType
   status    CategoryStatus @default(ACTIVE)
-  createdAt DateTime       @default(now()) @map("created_at")
-  updatedAt DateTime       @updatedAt @map("updated_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  csrActivities CsrActivity[]
+  challenges    Challenge[]
 
   @@unique([name, type])
   @@index([type])
@@ -113,4 +136,505 @@ model Setting {
 
   @@index([updatedById])
   @@map("settings")
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum SourceType {
+  PURCHASE
+  MANUFACTURING
+  EXPENSE
+  FLEET
+  MANUAL
+}
+
+model EmissionFactor {
+  id                 String              @id @default(uuid()) @db.Uuid
+  name               String              @db.VarChar(100)
+  source             String              @db.VarChar(100)
+  unit               String              @db.VarChar(30)
+  factor             Decimal             @db.Decimal(10, 4)
+  description        String?             @db.Text
+  status             Status              @default(ACTIVE)
+  carbonTransactions CarbonTransaction[]
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+
+  @@index([name])
+  @@index([status])
+  @@map("emission_factors")
+}
+
+model EnvironmentalGoal {
+  id           String     @id @default(uuid()) @db.Uuid
+  departmentId String     @map("department_id") @db.Uuid
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  title        String     @db.VarChar(150)
+  description  String?    @db.Text
+  targetValue  Decimal    @map("target_value") @db.Decimal(10, 2)
+  deadline     DateTime   @db.Date
+  status       GoalStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@index([departmentId])
+  @@index([deadline])
+  @@index([status])
+  @@map("environmental_goals")
+}
+
+model CarbonTransaction {
+  id                 String         @id @default(uuid()) @db.Uuid
+  departmentId       String         @map("department_id") @db.Uuid
+  department         Department     @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  emissionFactorId   String         @map("emission_factor_id") @db.Uuid
+  emissionFactor     EmissionFactor @relation(fields: [emissionFactorId], references: [id], onDelete: Restrict)
+  sourceType         SourceType     @map("source_type")
+  referenceNumber    String?        @map("reference_number") @db.VarChar(100)
+  quantity           Decimal        @db.Decimal(10, 2)
+  calculatedEmission Decimal        @map("calculated_emission") @db.Decimal(10, 4)
+  createdById        String         @map("created_by") @db.Uuid
+  creator            User           @relation("TransactionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  transactionDate    DateTime       @map("transaction_date") @db.Date
+  createdAt          DateTime       @default(now()) @map("created_at")
+
+  @@index([departmentId])
+  @@index([transactionDate])
+  @@index([sourceType])
+  @@index([createdById])
+  @@index([emissionFactorId])
+  @@map("carbon_transactions")
+}
+
+enum PolicyStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum AcknowledgementStatus {
+  ACKNOWLEDGED
+}
+
+enum AuditStatus {
+  PLANNED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum ComplianceStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  OVERDUE
+}
+
+enum SeverityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum NotificationType {
+  CSR
+  CHALLENGE
+  BADGE
+  REWARD
+  POLICY
+  AUDIT
+  COMPLIANCE
+  SYSTEM
+}
+
+enum EntityType {
+  USER
+  DEPARTMENT
+  CSR_ACTIVITY
+  CHALLENGE
+  POLICY
+  AUDIT
+  COMPLIANCE
+  REWARD
+  BADGE
+  SETTINGS
+}
+
+enum ActionType {
+  CREATE
+  UPDATE
+  DELETE
+  APPROVE
+  REJECT
+  REDEEM
+  LOGIN
+  LOGOUT
+}
+
+model Policy {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  title                  String                  @db.VarChar(200)
+  description            String?                 @db.Text
+  version                String                  @db.VarChar(20)
+  effectiveDate          DateTime                @map("effective_date") @db.Date
+  status                 PolicyStatus            @default(ACTIVE)
+  createdById            String                  @map("created_by") @db.Uuid
+  creator                User                    @relation("PolicyCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  policyAcknowledgements PolicyAcknowledgement[]
+  createdAt              DateTime                @default(now()) @map("created_at")
+  updatedAt              DateTime                @updatedAt @map("updated_at")
+  deletedAt              DateTime?               @map("deleted_at")
+
+  @@index([status])
+  @@index([effectiveDate])
+  @@index([createdById])
+  @@map("policies")
+}
+
+model PolicyAcknowledgement {
+  id                    String                @id @default(uuid()) @db.Uuid
+  policyId              String                @map("policy_id") @db.Uuid
+  policy                Policy                @relation(fields: [policyId], references: [id], onDelete: Restrict)
+  userId                String                @map("user_id") @db.Uuid
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  acknowledgedAt        DateTime              @default(now()) @map("acknowledged_at")
+  acknowledgementStatus AcknowledgementStatus @default(ACKNOWLEDGED) @map("acknowledgement_status")
+
+  @@unique([policyId, userId])
+  @@index([policyId])
+  @@index([userId])
+  @@map("policy_acknowledgements")
+}
+
+model Audit {
+  id               String            @id @default(uuid()) @db.Uuid
+  departmentId     String            @map("department_id") @db.Uuid
+  department       Department        @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  title            String            @db.VarChar(150)
+  description      String?           @db.Text
+  auditStartDate   DateTime          @map("audit_start_date") @db.Date
+  auditEndDate     DateTime          @map("audit_end_date") @db.Date
+  auditorId        String            @map("auditor_id") @db.Uuid
+  auditor          User              @relation("Auditor", fields: [auditorId], references: [id], onDelete: Restrict)
+  status           AuditStatus       @default(PLANNED)
+  findings         String?           @db.Text
+  score            Int?
+  complianceIssues ComplianceIssue[]
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  @@index([departmentId])
+  @@index([auditorId])
+  @@index([status])
+  @@index([auditStartDate])
+  @@index([auditEndDate])
+  @@map("audits")
+}
+
+model ComplianceIssue {
+  id           String           @id @default(uuid()) @db.Uuid
+  title        String           @db.VarChar(150)
+  auditId      String           @map("audit_id") @db.Uuid
+  audit        Audit            @relation(fields: [auditId], references: [id], onDelete: Restrict)
+  departmentId String           @map("department_id") @db.Uuid
+  department   Department       @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  ownerId      String           @map("owner_id") @db.Uuid
+  owner        User             @relation("ComplianceOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  severity     SeverityLevel
+  description  String           @db.Text
+  dueDate      DateTime         @map("due_date") @db.Date
+  resolvedAt   DateTime?        @map("resolved_at")
+  status       ComplianceStatus @default(OPEN)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  @@index([auditId])
+  @@index([departmentId])
+  @@index([ownerId])
+  @@index([severity])
+  @@index([status])
+  @@index([dueDate])
+  @@map("compliance_issues")
+}
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  user      User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  title     String           @db.VarChar(150)
+  message   String           @db.Text
+  type      NotificationType
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id         String     @id @default(uuid()) @db.Uuid
+  userId     String     @map("user_id") @db.Uuid
+  user       User       @relation(fields: [userId], references: [id], onDelete: Restrict)
+  entityType EntityType @map("entity_type")
+  entityId   String     @map("entity_id") @db.Uuid
+  action     ActionType
+  oldValue   Json?      @map("old_value")
+  newValue   Json?      @map("new_value")
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+model CsrActivity {
+  id           String                  @id @default(uuid()) @db.Uuid
+  departmentId String                  @map("department_id") @db.Uuid
+  department   Department              @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  categoryId   String                  @map("category_id") @db.Uuid
+  category     Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  title        String                  @db.VarChar(150)
+  description  String?                 @db.Text
+  startDate    DateTime                @map("start_date") @db.Date
+  endDate      DateTime                @map("end_date") @db.Date
+  status       ActivityStatus          @default(PLANNED)
+  createdById  String                  @map("created_by") @db.Uuid
+  creator      User                    @relation("CsrActivityCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  participants EmployeeParticipation[]
+  createdAt    DateTime                @default(now()) @map("created_at")
+  updatedAt    DateTime                @updatedAt @map("updated_at")
+  deletedAt    DateTime?               @map("deleted_at")
+
+  @@index([departmentId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([createdById])
+  @@map("csr_activities")
+}
+
+model EmployeeParticipation {
+  id             String         @id @default(uuid()) @db.Uuid
+  activityId     String         @map("activity_id") @db.Uuid
+  activity       CsrActivity    @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  userId         String         @map("user_id") @db.Uuid
+  user           User           @relation("EmployeeParticipant", fields: [userId], references: [id], onDelete: Restrict)
+  proofFile      String?        @map("proof_file") @db.Text
+  approvalStatus ApprovalStatus @default(PENDING) @map("approval_status")
+  completionDate DateTime?      @map("completion_date")
+  approvedById   String?        @map("approved_by") @db.Uuid
+  approver       User?          @relation("ParticipationApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt     DateTime?      @map("approved_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+
+  @@unique([activityId, userId])
+  @@index([activityId])
+  @@index([userId])
+  @@index([approvalStatus])
+  @@map("employee_participations")
+}
+
+model Challenge {
+  id               String                   @id @default(uuid()) @db.Uuid
+  categoryId       String                   @map("category_id") @db.Uuid
+  category         Category                 @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  title            String                   @db.VarChar(150)
+  description      String?                  @db.Text
+  difficulty       DifficultyLevel
+  xpReward         Int                      @map("xp_reward")
+  deadline         DateTime                 @db.Date
+  evidenceRequired Boolean                  @default(false) @map("evidence_required")
+  status           ChallengeStatus          @default(DRAFT)
+  participants     ChallengeParticipation[]
+  createdAt        DateTime                 @default(now()) @map("created_at")
+  updatedAt        DateTime                 @updatedAt @map("updated_at")
+  deletedAt        DateTime?                @map("deleted_at")
+
+  @@index([categoryId])
+  @@index([deadline])
+  @@index([status])
+  @@map("challenges")
+}
+
+model ChallengeParticipation {
+  id             String         @id @default(uuid()) @db.Uuid
+  challengeId    String         @map("challenge_id") @db.Uuid
+  challenge      Challenge      @relation(fields: [challengeId], references: [id], onDelete: Restrict)
+  userId         String         @map("user_id") @db.Uuid
+  user           User           @relation("ChallengeParticipant", fields: [userId], references: [id], onDelete: Restrict)
+  progress       Int            @default(0)
+  proofFile      String?        @map("proof_file") @db.Text
+  approvalStatus ApprovalStatus @default(PENDING) @map("approval_status")
+  approvedById   String?        @map("approved_by") @db.Uuid
+  approver       User?          @relation("ChallengeApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt     DateTime?      @map("approved_at")
+  completedAt    DateTime?      @map("completed_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+
+  @@unique([challengeId, userId])
+  @@index([challengeId])
+  @@index([userId])
+  @@index([approvalStatus])
+  @@map("challenge_participations")
+}
+
+model XpTransaction {
+  id         String       @id @default(uuid()) @db.Uuid
+  userId     String       @map("user_id") @db.Uuid
+  user       User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  sourceType XPSourceType @map("source_type")
+  sourceId   String       @map("source_id") @db.Uuid
+  points     Int
+  remarks    String?      @db.Text
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([sourceType])
+  @@index([createdAt])
+  @@map("xp_transactions")
+}
+
+model Badge {
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String      @unique @db.VarChar(100)
+  description String?     @db.Text
+  unlockRule  String      @map("unlock_rule") @db.Text
+  icon        String?     @db.Text
+  status      Status      @default(ACTIVE)
+  users       UserBadge[]
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  deletedAt   DateTime?   @map("deleted_at")
+
+  @@map("badges")
+}
+
+model UserBadge {
+  id        String   @id @default(uuid()) @db.Uuid
+  badgeId   String   @map("badge_id") @db.Uuid
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Restrict)
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  awardedAt DateTime @default(now()) @map("awarded_at")
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+  @@map("user_badges")
+}
+
+model Reward {
+  id             String             @id @default(uuid()) @db.Uuid
+  name           String             @unique @db.VarChar(100)
+  description    String?            @db.Text
+  pointsRequired Int                @map("points_required")
+  stock          Int
+  status         Status             @default(ACTIVE)
+  redemptions    RewardRedemption[]
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  deletedAt      DateTime?          @map("deleted_at")
+
+  @@map("rewards")
+}
+
+model RewardRedemption {
+  id         String           @id @default(uuid()) @db.Uuid
+  rewardId   String           @map("reward_id") @db.Uuid
+  reward     Reward           @relation(fields: [rewardId], references: [id], onDelete: Restrict)
+  userId     String           @map("user_id") @db.Uuid
+  user       User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  redeemedAt DateTime         @default(now()) @map("redeemed_at")
+  status     RedemptionStatus @default(SUCCESS)
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  @@index([rewardId])
+  @@index([userId])
+  @@index([redeemedAt])
+  @@map("reward_redemptions")
+}
+
+model EmployeeTraining {
+  id             String         @id @default(uuid()) @db.Uuid
+  userId         String         @map("user_id") @db.Uuid
+  user           User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  title          String         @db.VarChar(150)
+  description    String?        @db.Text
+  status         TrainingStatus @default(ASSIGNED)
+  progress       Int            @default(0)
+  completionDate DateTime?      @map("completion_date")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([status])
+  @@map("employee_trainings")
+}
+
+model DiversityMetric {
+  id        String   @id @default(uuid()) @db.Uuid
+  category  String   @db.VarChar(100)
+  label     String   @db.VarChar(100)
+  value     Decimal  @db.Decimal(5, 2)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([category, label])
+  @@map("diversity_metrics")
+}
+
+enum ActivityStatus {
+  PLANNED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ChallengeStatus {
+  DRAFT
+  ACTIVE
+  UNDER_REVIEW
+  COMPLETED
+  ARCHIVED
+}
+
+enum XPSourceType {
+  CSR
+  CHALLENGE
+  BADGE
+  REWARD_REDEMPTION
+  ADMIN
+}
+
+enum RedemptionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum TrainingStatus {
+  ASSIGNED
+  COMPLETED
 }

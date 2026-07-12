@@ -131,6 +131,44 @@ const roles = [
   },
 ] as const;
 
+const emissionFactors = [
+  {
+    name: "Diesel",
+    source: "EPA 2024",
+    unit: "L",
+    factor: 2.6800,
+    description: "Diesel fuel emissions per liter.",
+  },
+  {
+    name: "Electricity",
+    source: "eGRID 2024",
+    unit: "kWh",
+    factor: 0.8200,
+    description: "Grid electricity emissions per kilowatt-hour.",
+  },
+  {
+    name: "Natural Gas",
+    source: "EPA 2024",
+    unit: "m³",
+    factor: 1.8840,
+    description: "Natural gas emissions per cubic meter.",
+  },
+  {
+    name: "Petrol",
+    source: "EPA 2024",
+    unit: "L",
+    factor: 2.3100,
+    description: "Petrol/Gasoline fuel emissions per liter.",
+  },
+  {
+    name: "Water Supply",
+    source: "DEFRA 2024",
+    unit: "m³",
+    factor: 0.3440,
+    description: "Water supply emissions per cubic meter (delivery & treatment).",
+  },
+] as const;
+
 async function seedDepartments() {
   const createdDepartments = new Map<string, string>();
 
@@ -259,6 +297,85 @@ async function seedAdministrator() {
   });
 }
 
+async function seedEmissionFactors() {
+  for (const factor of emissionFactors) {
+    const existing = await prisma.emissionFactor.findFirst({
+      where: { name: factor.name },
+    });
+
+    if (existing) {
+      await prisma.emissionFactor.update({
+        where: { id: existing.id },
+        data: {
+          source: factor.source,
+          unit: factor.unit,
+          factor: factor.factor,
+          description: factor.description,
+          status: "ACTIVE",
+        },
+      });
+    } else {
+      await prisma.emissionFactor.create({
+        data: {
+          name: factor.name,
+          source: factor.source,
+          unit: factor.unit,
+          factor: factor.factor,
+          description: factor.description,
+          status: "ACTIVE",
+        },
+      });
+    }
+  }
+}
+
+async function seedSocial() {
+  // Badges
+  const badges = [
+    { name: "Eco-Warrior", description: "Participated in 5 or more approved CSR activities.", unlockRule: "approvedCsrCount >= 5" },
+    { name: "First Steps", description: "Completed 1 sustainability challenge.", unlockRule: "approvedChallengeCount >= 1" },
+    { name: "Training Scholar", description: "Completed all assigned ESG training.", unlockRule: "completedTrainingsCount === totalTrainingsCount" },
+  ];
+  for (const b of badges) {
+    await prisma.badge.upsert({
+      where: { name: b.name },
+      update: { description: b.description, unlockRule: b.unlockRule },
+      create: { name: b.name, description: b.description, unlockRule: b.unlockRule, status: "ACTIVE" },
+    });
+  }
+
+  // Rewards
+  const rewards = [
+    { name: "Reusable Water Bottle", description: "Stainless steel eco-friendly bottle.", pointsRequired: 150, stock: 50 },
+    { name: "Organic Cotton Tote", description: "Eco-friendly bag for grocery shopping.", pointsRequired: 100, stock: 100 },
+    { name: "Sustainability eBook", description: "Entertaining guide to sustainable living.", pointsRequired: 50, stock: 999 },
+  ];
+  for (const r of rewards) {
+    await prisma.reward.upsert({
+      where: { name: r.name },
+      update: { description: r.description, pointsRequired: r.pointsRequired, stock: r.stock },
+      create: { name: r.name, description: r.description, pointsRequired: r.pointsRequired, stock: r.stock, status: "ACTIVE" },
+    });
+  }
+
+  // Diversity
+  const diversity = [
+    { category: "Gender Balance", label: "Female", value: 45.0 },
+    { category: "Gender Balance", label: "Male", value: 52.0 },
+    { category: "Gender Balance", label: "Non-binary", value: 3.0 },
+    { category: "Age Distribution", label: "Under 30", value: 30.0 },
+    { category: "Age Distribution", label: "30-49", value: 55.0 },
+    { category: "Age Distribution", label: "50+", value: 15.0 },
+  ];
+  for (const d of diversity) {
+    await prisma.diversityMetric.upsert({
+      where: { category_label: { category: d.category, label: d.label } },
+      update: { value: d.value },
+      create: { category: d.category, label: d.label, value: d.value },
+    });
+  }
+}
+
 async function main() {
   console.log("🌱 Starting database seed...");
 
@@ -276,6 +393,12 @@ async function main() {
 
   await seedAdministrator();
   console.log("✓ Administrator account seeded");
+
+  await seedEmissionFactors();
+  console.log("✓ Emission factors seeded");
+
+  await seedSocial();
+  console.log("✓ Social & Gamification seeded");
 
   console.log("🎉 Database seed completed successfully");
 }
