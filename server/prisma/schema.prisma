@@ -17,6 +17,23 @@ enum DepartmentStatus {
   INACTIVE
 }
 
+enum CategoryType {
+  CSR_ACTIVITY
+  CHALLENGE
+  TRAINING
+  GENERAL
+}
+
+enum CategoryStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
 model Role {
   id          String  @id @default(uuid()) @db.Uuid
   name        String  @unique @db.VarChar(50)
@@ -29,19 +46,19 @@ model Role {
 }
 
 model Department {
-  id                String            @id @default(uuid()) @db.Uuid
-  name              String            @db.VarChar(100)
-  code              String            @unique @db.VarChar(20)
+  id                 String            @id @default(uuid()) @db.Uuid
+  name               String            @db.VarChar(100)
+  code               String            @unique @db.VarChar(20)
   parentDepartmentId String?           @map("parent_department_id") @db.Uuid
-  headUserId        String?           @map("head_user_id") @db.Uuid
-  status            DepartmentStatus  @default(ACTIVE)
-  parentDepartment  Department?       @relation("DepartmentParent", fields: [parentDepartmentId], references: [id], onDelete: SetNull)
-  childDepartments  Department[]      @relation("DepartmentParent")
-  headUser          User?             @relation("DepartmentHead", fields: [headUserId], references: [id], onDelete: SetNull)
-  users             User[]
-  createdAt         DateTime          @default(now()) @map("created_at")
-  updatedAt         DateTime          @updatedAt @map("updated_at")
-  deletedAt         DateTime?         @map("deleted_at")
+  headUserId         String?           @map("head_user_id") @db.Uuid
+  status             DepartmentStatus  @default(ACTIVE)
+  parentDepartment   Department?       @relation("DepartmentParent", fields: [parentDepartmentId], references: [id], onDelete: SetNull)
+  childDepartments   Department[]      @relation("DepartmentParent")
+  headUser           User?             @relation("DepartmentHead", fields: [headUserId], references: [id], onDelete: SetNull)
+  users              User[]
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+  deletedAt          DateTime?         @map("deleted_at")
 
   @@index([status])
   @@index([parentDepartmentId])
@@ -50,22 +67,50 @@ model Department {
 }
 
 model User {
-  id            String       @id @default(uuid()) @db.Uuid
-  departmentId  String       @map("department_id") @db.Uuid
-  roleId        String       @map("role_id") @db.Uuid
-  name          String       @db.VarChar(120)
-  email         String       @unique @db.VarChar(255)
-  passwordHash  String       @map("password_hash") @db.Text
-  status        UserStatus   @default(ACTIVE)
-  department    Department   @relation(fields: [departmentId], references: [id], onDelete: Restrict)
-  role          Role         @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  headedDepartment Department[] @relation("DepartmentHead")
-  createdAt     DateTime     @default(now()) @map("created_at")
-  updatedAt     DateTime     @updatedAt @map("updated_at")
-  deletedAt     DateTime?    @map("deleted_at")
+  id                String       @id @default(uuid()) @db.Uuid
+  departmentId      String       @map("department_id") @db.Uuid
+  roleId            String       @map("role_id") @db.Uuid
+  name              String       @db.VarChar(120)
+  email             String       @unique @db.VarChar(255)
+  passwordHash      String       @map("password_hash") @db.Text
+  status            UserStatus   @default(ACTIVE)
+  department        Department   @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  role              Role         @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  headedDepartment  Department[] @relation("DepartmentHead")
+  updatedSettings    Setting[]    @relation("SettingsUpdatedBy")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+  deletedAt         DateTime?    @map("deleted_at")
 
   @@index([departmentId])
   @@index([roleId])
   @@index([status])
   @@map("users")
+}
+
+model Category {
+  id        String         @id @default(uuid()) @db.Uuid
+  name      String         @db.VarChar(100)
+  type      CategoryType
+  status    CategoryStatus @default(ACTIVE)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  @@unique([name, type])
+  @@index([type])
+  @@index([status])
+  @@map("categories")
+}
+
+model Setting {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique @db.VarChar(100)
+  value       String   @db.Text
+  description String?  @db.Text
+  updatedById String?  @map("updated_by") @db.Uuid
+  updatedBy   User?    @relation("SettingsUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([updatedById])
+  @@map("settings")
 }

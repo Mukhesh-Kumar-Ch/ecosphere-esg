@@ -16,3 +16,5 @@ export function requireRoles(allowedRoles: string[]) {
     return next();
   };
 }
+
+export const requireAdmin = requireRoles(["Admin"]);

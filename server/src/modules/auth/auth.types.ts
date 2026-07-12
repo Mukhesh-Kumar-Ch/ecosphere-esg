@@ -24,6 +24,12 @@ export type LoginInput = {
   password: string;
 };
 
+export type SignupInput = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
 export type RefreshInput = {
   refreshToken: string;
 };

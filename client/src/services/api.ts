@@ -47,6 +47,11 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
+  signup: (email: string, password: string, confirmPassword: string) =>
+    request<AuthSession>("/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ email, password, confirmPassword }),
+    }),
   me: () => request<{ user: AuthUser }>("/auth/me"),
   refresh: (refreshToken: string) =>
     request<AuthSession>("/auth/refresh", {

@@ -36,6 +36,53 @@ export async function findUserForLogin(email: string) {
   });
 }
 
+export async function findUserByEmail(email: string) {
+  return prisma.user.findFirst({
+    where: { email },
+    select: userSelection,
+  });
+}
+
+export async function findRoleByName(name: string) {
+  return prisma.role.findUnique({
+    where: { name },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+    },
+  });
+}
+
+export async function findDepartmentByCode(code: string) {
+  return prisma.department.findFirst({
+    where: {
+      code,
+      deletedAt: null,
+      status: "ACTIVE",
+    },
+    select: {
+      id: true,
+      name: true,
+      code: true,
+      status: true,
+    },
+  });
+}
+
+export async function createUser(data: {
+  departmentId: string;
+  roleId: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+}) {
+  return prisma.user.create({
+    data,
+    select: userSelection,
+  });
+}
+
 export async function findActiveUserById(userId: string) {
   return prisma.user.findFirst({
     where: {

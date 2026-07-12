@@ -1,11 +1,17 @@
 import type { Request, Response } from "express";
-import { getCurrentUser, login, refreshSession } from "./auth.service.js";
+import { getCurrentUser, login, refreshSession, signup } from "./auth.service.js";
 import { sendSuccess } from "../../utils/response.js";
 
 export async function loginController(request: Request, response: Response) {
   const result = await login(request.body);
 
   return sendSuccess(response, "Login successful.", result);
+}
+
+export async function signupController(request: Request, response: Response) {
+  const result = await signup(request.body);
+
+  return sendSuccess(response, "Signup successful.", result, 201);
 }
 
 export async function currentUserController(request: Request, response: Response) {

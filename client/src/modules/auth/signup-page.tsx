@@ -1,37 +1,38 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth-context";
-import { Link } from "react-router-dom";
-import { loginSchema, type LoginFormValues } from "./auth.schemas";
+import { signupSchema, type SignupFormValues } from "./auth.schemas";
 
-export function LoginPage() {
+export function SignupPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
+  const onSubmit = async (values: SignupFormValues) => {
     try {
-      await login(values.email, values.password);
+      await signup(values.email, values.password, values.confirmPassword);
       navigate("/", { replace: true });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Login failed.";
+      const message = error instanceof Error ? error.message : "Signup failed.";
       setError("root", { message });
     }
   };
@@ -43,25 +44,24 @@ export function LoginPage() {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200">EcoSphere</p>
             <h1 className="mt-6 max-w-xl text-4xl font-semibold leading-tight md:text-5xl">
-              Enterprise ESG operations with secure role-based access.
+              Create an Employee account for EcoSphere access.
             </h1>
             <p className="mt-4 max-w-lg text-sm leading-6 text-slate-300 md:text-base">
-              Centralize environmental, social, and governance workflows in a single platform built for
-              operational clarity.
+              Join the platform as an Employee with a secure, bcrypt-protected account and role-based access.
             </p>
           </div>
           <div className="grid gap-3 text-sm text-slate-300 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">JWT authentication</div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">RBAC enforced</div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">Prisma + PostgreSQL</div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">Employee only</div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">No role selection</div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">Secure signup</div>
           </div>
         </section>
 
         <section className="flex items-center justify-center px-6 py-10 md:px-10">
           <Card className="w-full max-w-md border-slate-200/80 bg-white/95">
             <CardHeader>
-              <CardTitle>Sign in</CardTitle>
-              <CardDescription>Use your EcoSphere credentials to continue.</CardDescription>
+              <CardTitle>Create account</CardTitle>
+              <CardDescription>Register as an Employee to continue.</CardDescription>
             </CardHeader>
             <CardContent>
               <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -73,20 +73,31 @@ export function LoginPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" autoComplete="current-password" {...register("password")} />
+                  <Input id="password" type="password" autoComplete="new-password" {...register("password")} />
                   {errors.password ? <p className="text-sm text-danger">{errors.password.message}</p> : null}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    {...register("confirmPassword")}
+                  />
+                  {errors.confirmPassword ? <p className="text-sm text-danger">{errors.confirmPassword.message}</p> : null}
                 </div>
 
                 {errors.root ? <Alert>{errors.root.message}</Alert> : null}
 
                 <Button className="w-full" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Signing in..." : "Login"}
+                  {isSubmitting ? "Creating account..." : "Sign up"}
                 </Button>
 
                 <p className="text-center text-sm text-slate-500">
-                  New employee?{" "}
-                  <Link className="font-medium text-blue-700 hover:underline" to="/signup">
-                    Create an account
+                  Already have an account?{" "}
+                  <Link className="font-medium text-blue-700 hover:underline" to="/login">
+                    Login
                   </Link>
                 </p>
               </form>

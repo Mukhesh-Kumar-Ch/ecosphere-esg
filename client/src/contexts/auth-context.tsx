@@ -5,6 +5,7 @@ type AuthContextValue = {
   user: AuthUser | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, confirmPassword: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -60,6 +61,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(session.user);
   }, []);
 
+  const signup = React.useCallback(async (email: string, password: string, confirmPassword: string) => {
+    const session = await authApi.signup(email, password, confirmPassword);
+    setSession(session);
+    setUser(session.user);
+  }, []);
+
   const logout = React.useCallback(async () => {
     try {
       await authApi.logout();
@@ -70,8 +77,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = React.useMemo(
-    () => ({ user, isLoading, login, logout }),
-    [user, isLoading, login, logout],
+    () => ({ user, isLoading, login, signup, logout }),
+    [user, isLoading, login, signup, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
